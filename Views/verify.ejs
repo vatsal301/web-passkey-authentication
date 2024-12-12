@@ -1,0 +1,50 @@
+<%- include('./layout/header'); -%>
+
+<div class="container">
+  <h1 class="mb-2 text-center">Register Passkey</h1>
+  <form id="form" class="p-4 border shadow-lg">
+    <button type="button" id="btn" class="btn btn-primary">
+      Generate Passkey
+    </button>
+  </form>
+</div>
+<script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+<script>
+  const button = document.getElementById("btn");
+  button.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const path = window.location;
+    console.log("path", path);
+    const url = new URL(path);
+    console.log(url);
+    const userId = url.searchParams.get("userId");
+    console.log("userId", userId);
+    const res = await fetch("/register-challenge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: userId }),
+    });
+    const challengeResult = await res.json();
+    if (challengeResult.status == "success") {
+      console.log("in if", challengeResult);
+      alert(challengeResult.message);
+      const { options } = challengeResult.data; // Server side challenge
+      console.log("options", options);
+      const authenticationResult =
+        await SimpleWebAuthnBrowser.startRegistration(options);
+      console.log(authenticationResult);
+      // const verifyRes = await fetch("/register-verify", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ userId: userId }),
+      // });
+      // window.location.replace(
+      //   `http://localhost:8000/verify?userId=${result.data._id}`
+      // );
+    } else {
+      alert(challengeResult.message);
+      console.log(challengeResult);
+    }
+  });
+</script>
+<%- include('./layout/footer'); -%>

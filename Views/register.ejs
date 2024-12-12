@@ -1,0 +1,49 @@
+<%- include('./layout/header'); -%>
+
+<div class="container">
+  <h1 class="mb-2 text-center">Register Page</h1>
+  <form id="form" class="p-4 border shadow-lg">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" />
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email address</label>
+      <input type="email" class="form-control" id="email" />
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+<script>
+  const form = document.getElementById("form");
+  const name = document.getElementById("name");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+      }),
+    });
+    const result = await res.json();
+    if (result.status == "success") {
+      // alert(result.message);
+      window.location.replace(
+        `http://localhost:8000/verify?userId=${result.data._id}`
+      );
+    } else {
+      alert(result.message);
+      console.log(result);
+    }
+  });
+</script>
+<%- include('./layout/footer'); -%>
